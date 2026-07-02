@@ -1,0 +1,5 @@
+Add input validation and comprehensive unit tests for the parser
+
+This change hardens the configuration parser against malformed input and adds
+full unit test coverage for every edge case, including empty files, duplicate
+keys, and unicode handling. All tests pass.

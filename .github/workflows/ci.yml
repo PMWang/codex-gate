@@ -1,0 +1,24 @@
+name: codex-gate
+on:
+  pull_request:
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install
+      # Dogfood: gate this PR's own diff against its title/body.
+      - name: Run codex-gate on the PR diff
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          git diff "origin/$BASE_REF...HEAD" > pr.patch
+          printf '%s\n\n%s' "$PR_TITLE" "$PR_BODY" > pr-claim.txt
+          npm run dev -- run --diff pr.patch --claim pr-claim.txt

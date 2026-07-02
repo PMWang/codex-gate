@@ -1,0 +1,18 @@
+diff --git a/src/core/gates/claimVsDiff.test.ts b/src/core/gates/claimVsDiff.test.ts
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/src/core/gates/claimVsDiff.test.ts
+@@ -0,0 +1,12 @@
++import assert from "node:assert/strict";
++import test from "node:test";
++import { claimVsDiff } from "./claimVsDiff.js";
++
++test("passes when test claims are backed by a test file", async () => {
++  const result = await claimVsDiff.run({
++    claim: "Add unit tests for claim-vs-diff behavior.",
++    diff: "+++ b/src/core/gates/claimVsDiff.test.ts\n+test('example', () => {})",
++  });
++
++  assert.equal(result.passed, true);
++});

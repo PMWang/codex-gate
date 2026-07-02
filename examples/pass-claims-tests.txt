@@ -1,0 +1,4 @@
+Add unit tests for the claim-vs-diff gate
+
+This change adds real test coverage for claim-vs-diff behavior, including
+test-claim detection and a passing honest claim/diff case.
