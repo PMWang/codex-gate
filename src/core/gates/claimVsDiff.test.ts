@@ -69,6 +69,35 @@ test("warns when a named source file is not present in the diff", async () => {
   assert.match(result.findings[0]?.message ?? "", /src\/validator\.ts/);
 });
 
+test("does not block negated test mentions", async () => {
+  for (const claim of [
+    "Config-only tweak; no tests needed for this change.",
+    "Rename an internal constant. Tests are unchanged.",
+    "Verified via manual testing on a local build.",
+  ]) {
+    const result = await run(claim, diffFor("src/config.ts"));
+
+    assert.equal(result.passed, true, claim);
+    assert.deepEqual(result.findings, [], claim);
+  }
+});
+
+test("still blocks an assertive test claim next to an unrelated negation", async () => {
+  const result = await run("Add tests for the parser; no changes to the public API.", diffFor("src/parser.ts"));
+
+  assert.equal(result.passed, false);
+  assert.equal(result.findings[0]?.severity, "block");
+});
+
+test("ignores prose tokens that only look like filenames", async () => {
+  const result = await run(
+    "Bump to v1.2 as announced on example.com, e.g. clearer wording.",
+    diffFor("src/parser.ts"),
+  );
+
+  assert.deepEqual(result.findings, []);
+});
+
 test("passes when a test claim is matched by a test-file diff", async () => {
   const result = await run("Add unit tests for claim-vs-diff behavior.", diffFor("src/core/gates/claimVsDiff.test.ts"));
 

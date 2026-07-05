@@ -1,5 +1,7 @@
 # codex-gate
 
+[![CI](https://github.com/PMWang/codex-gate/actions/workflows/ci.yml/badge.svg)](https://github.com/PMWang/codex-gate/actions/workflows/ci.yml)
+
 **A quality gate that keeps Codex honest.**
 
 `codex-gate` inspects the changes an AI coding agent produces — *before* they get
@@ -8,8 +10,10 @@ descriptions that don't match the diff, tests that were "passed" but never run,
 churn that changes nothing, and rules the agent was told to follow but didn't.
 
 It is built for the [OpenAI Codex](https://openai.com/codex/) workflow: it reads
-your repo's `AGENTS.md`, plugs into the Codex CLI loop, and can run as a
-pre-merge check in CI.
+your repo's `AGENTS.md`, gates staged changes or any diff from the command line,
+and runs as a pre-merge check in CI. Native [Codex CLI hooks](https://developers.openai.com/codex/hooks)
+integration — gating every Codex turn automatically — is next on the
+[roadmap](./ROADMAP.md).
 
 > Community project. Not affiliated with or endorsed by OpenAI.
 

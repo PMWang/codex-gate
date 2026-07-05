@@ -41,9 +41,26 @@ export function summarizeDiff(diff: string): DiffSummary {
   let addedLines = 0;
   let removedLines = 0;
 
+  // A path from a `--- a/x` / `+++ b/x` header, minus the prefix and any
+  // trailing tab-separated metadata. `/dev/null` (pure add/delete) is skipped.
+  const addHeaderPath = (line: string, prefix: string) => {
+    const path = line.slice(prefix.length).split("\t")[0].trim();
+    if (path && path !== "/dev/null") files.add(path);
+  };
+
   for (const line of diff.split("\n")) {
     if (line.startsWith("+++ b/")) {
-      files.add(line.slice("+++ b/".length).trim());
+      addHeaderPath(line, "+++ b/");
+    } else if (line.startsWith("--- a/")) {
+      // Captures pure deletions, where the `+++` side is /dev/null.
+      addHeaderPath(line, "--- a/");
+    } else if (line.startsWith("diff --git a/")) {
+      // Captures renames and binary files, which have no ---/+++ body.
+      const m = line.match(/^diff --git a\/(.+?) b\/(.+)$/);
+      if (m) {
+        files.add(m[1]);
+        files.add(m[2]);
+      }
     } else if (line.startsWith("+") && !line.startsWith("+++")) {
       addedLines++;
     } else if (line.startsWith("-") && !line.startsWith("---")) {

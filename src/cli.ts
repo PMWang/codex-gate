@@ -52,6 +52,14 @@ async function main() {
     () => git("log -1 --pretty=%B"),
   );
 
+  // An empty diff has nothing to gate. Without this, the default invocation on
+  // a clean tree would judge the last commit's message against no changes at
+  // all — a mismatched pairing that produces nonsense findings.
+  if (!diff.trim()) {
+    console.log("codex-gate: empty diff — nothing to gate.");
+    process.exit(0);
+  }
+
   const input: GateInput = {
     claim,
     diff,
