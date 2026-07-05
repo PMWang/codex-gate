@@ -8,13 +8,13 @@ import {
   isDocOrCommentOnly,
 } from "../gate.js";
 
-const TEST_CLAIM_RE = /\b(tests?|tested|testing|unit test|coverage|spec)\b/i;
+export const TEST_CLAIM_RE = /\b(tests?|tested|testing|unit test|coverage|spec)\b/i;
 
 // Test mentions that are negated ("no tests needed", "tests are not required")
 // or explicitly manual ("verified via manual testing") are not claims that test
 // files changed. They get stripped before TEST_CLAIM_RE runs.
 const TEST_WORD = String.raw`(?:tests?|tested|testing|unit tests?|coverage|specs?)`;
-const NON_ASSERTIVE_TEST_RE = new RegExp(
+export const NON_ASSERTIVE_TEST_RE = new RegExp(
   [
     String.raw`\b(?:no|not|without|don'?t|doesn'?t|didn'?t|never|skip(?:s|ped)?|omit(?:s|ted)?)\b[^.!?\n]{0,40}?\b${TEST_WORD}\b`,
     String.raw`\b${TEST_WORD}\b[^.!?\n]{0,40}?\b(?:not|aren'?t|weren'?t|skipped|omitted|deferred|unchanged)\b`,

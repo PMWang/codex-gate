@@ -36,7 +36,7 @@ function parseArgs(argv: string[]): Record<string, string | boolean> {
 async function main() {
   const [, , command, ...rest] = process.argv;
   if (command !== "run") {
-    console.error("usage: codex-gate run [--staged] [--diff <file|->] [--claim <file|->]");
+    console.error("usage: codex-gate run [--staged] [--diff <file|->] [--claim <file|->] [--no-run]");
     process.exit(2);
   }
 
@@ -64,7 +64,10 @@ async function main() {
     claim,
     diff,
     repoRoot,
-    context: toContext(loadCodexContext(repoRoot)),
+    context: {
+      ...toContext(loadCodexContext(repoRoot)),
+      testRealityNoRun: args["no-run"] === true,
+    },
   };
 
   const results = await runGates(input);
