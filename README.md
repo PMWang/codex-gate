@@ -11,9 +11,7 @@ churn that changes nothing, and rules the agent was told to follow but didn't.
 
 It is built for the [OpenAI Codex](https://openai.com/codex/) workflow: it reads
 your repo's `AGENTS.md`, gates staged changes or any diff from the command line,
-and runs as a pre-merge check in CI. Native [Codex CLI hooks](https://developers.openai.com/codex/hooks)
-integration — gating every Codex turn automatically — is next on the
-[roadmap](./ROADMAP.md).
+and runs as a Codex CLI hook or pre-merge check in CI.
 
 > Community project. Not affiliated with or endorsed by OpenAI.
 
@@ -47,6 +45,15 @@ npm run dev -- run --diff change.patch --claim message.txt
 
 Exit code is non-zero if any gate **blocks**, so it drops straight into CI or a
 git hook.
+
+## Gate every Codex turn
+
+```bash
+codex-gate install --codex-hook
+```
+
+This writes a project-local Codex `Stop` hook to `.codex/hooks.json`; it runs
+`codex-gate run` on each turn and asks Codex to continue when the gate blocks.
 
 ## Architecture
 

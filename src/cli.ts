@@ -4,6 +4,7 @@ import { execSync } from "node:child_process";
 import { runGates } from "./core/registry.js";
 import { GateInput } from "./core/gate.js";
 import { loadCodexContext, toContext } from "./codex/adapter.js";
+import { installCodexHook, runCodexStopHook } from "./codex/hooks.js";
 
 function readMaybeFile(value: string | undefined, fallback: () => string): string {
   if (!value) return fallback();
@@ -35,8 +36,38 @@ function parseArgs(argv: string[]): Record<string, string | boolean> {
 
 async function main() {
   const [, , command, ...rest] = process.argv;
+  if (command === "install") {
+    const args = parseArgs(rest);
+    if (args["codex-hook"] !== true) {
+      console.error("usage: codex-gate install --codex-hook [--no-run]");
+      process.exit(2);
+    }
+
+    const result = await installCodexHook({
+      repoRoot: (args.repo as string) || process.cwd(),
+      noRun: args["no-run"] === true,
+    });
+
+    console.log(
+      result.installed
+        ? `codex-gate: installed Codex Stop hook in ${result.hooksPath}`
+        : `codex-gate: Codex Stop hook already installed in ${result.hooksPath}`,
+    );
+    console.log(`command: ${result.command}`);
+    console.log(`uninstall: remove this command from ${result.hooksPath}`);
+    process.exit(0);
+  }
+
+  if (command === "codex-stop-hook") {
+    const args = parseArgs(rest);
+    process.exit(await runCodexStopHook({ noRun: args["no-run"] === true }));
+  }
+
   if (command !== "run") {
-    console.error("usage: codex-gate run [--staged] [--diff <file|->] [--claim <file|->] [--no-run]");
+    console.error(
+      "usage: codex-gate run [--staged] [--diff <file|->] [--claim <file|->] [--no-run]\n" +
+        "       codex-gate install --codex-hook [--no-run]",
+    );
     process.exit(2);
   }
 

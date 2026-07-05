@@ -23,6 +23,11 @@ tool-agnostic (no Codex imports in `src/core`).
       AGENTS.md (`forbid-import`, `forbid-added`). Dogfooded: this repo's own
       "core stays tool-agnostic" rule is now enforced on every gated diff.
       Prose-rule (LLM-backed) checking stays in Later.
+- [x] **Codex CLI hooks integration** — `codex-gate install --codex-hook`
+      installs a project-local `Stop` hook in `.codex/hooks.json`; the hook
+      feeds Codex's last assistant message into `codex-gate run` and returns a
+      Stop continuation when gates block. Default behavior runs tests; use
+      `--no-run` only for constrained sandboxes.
 
 ## Next (in priority order)
 
@@ -34,16 +39,7 @@ project's test command (detect from `package.json` `scripts.test`, `pytest`,
 command exists while tests are claimed. Capture and print the real output.
 **Notes:** needs a timeout and an opt-out flag (`--no-run`) for sandboxes.
 
-### 2. Codex CLI hooks integration
-**What:** ship first-class [Codex CLI hooks](https://developers.openai.com/codex/hooks)
-support (hooks are stable since Codex v0.124.0): a documented hook config +
-`codex-gate install --codex-hook` that wires codex-gate to run on Codex's
-`Stop` event, so every Codex turn is gated automatically before the user even
-looks at the diff. Nobody occupies this niche yet; it also makes the README's
-Codex-integration story literally true.
-**Notes:** lives in `src/codex/` (shell layer), core stays tool-agnostic.
-
-### 3. Ship it: npm publish + GitHub Action
+### 2. Ship it: npm publish + GitHub Action
 - npm publish (`prepublishOnly` already builds; verify `npx codex-gate` works).
 - GitHub Action wrapper positioned as a **required status check for
   agent-generated PRs** ("AI PRs must pass codex-gate before a human looks").
@@ -51,14 +47,14 @@ Codex-integration story literally true.
   (documented agent behavior: `--no-verify`, skipping hooks).
 - Submit to awesome-codex community lists after publish.
 
-### 4. no-churn (lite)
+### 3. no-churn (lite)
 **Catches:** pointless reformatting / dead code / placeholder work.
 **Logic:** flag hunks that are pure whitespace/reformatting (added line equals a
 removed line ignoring whitespace); flag added `TODO`/`FIXME`/`pass`/`throw new
 Error("not implemented")` with no surrounding logic. `warn` only — adjacent
 tools already cover deep churn analysis; this stays a lightweight tripwire.
 
-### 5. Config file
+### 4. Config file
 `.codex-gate.yml` — enable/disable gates, set thresholds (e.g. churn ratio,
 long-description word count). Minimal: parse, apply, document.
 
