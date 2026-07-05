@@ -1,0 +1,68 @@
+name: "codex-gate"
+description: >-
+  A quality gate for AI-agent pull requests — blocks PRs whose descriptions
+  don't match the diff, whose claimed tests were never run, or that violate
+  the repo's AGENTS.md rules.
+branding:
+  icon: "shield"
+  color: "red"
+
+inputs:
+  claim:
+    description: >-
+      The change description to gate. Defaults to the pull request title and
+      body.
+    required: false
+    default: ""
+  base-ref:
+    description: "Base ref to diff against. Defaults to the PR base branch."
+    required: false
+    default: ""
+  no-run:
+    description: >-
+      Set to "true" to skip the test-reality gate (no test command execution).
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+
+    - name: Install codex-gate
+      shell: bash
+      run: npm install --prefix "${{ github.action_path }}" --no-audit --no-fund
+
+    - name: Run codex-gate
+      shell: bash
+      env:
+        INPUT_CLAIM: ${{ inputs.claim }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
+        PR_BODY: ${{ github.event.pull_request.body }}
+        BASE_REF: ${{ inputs.base-ref != '' && inputs.base-ref || github.base_ref }}
+        NO_RUN: ${{ inputs.no-run }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        set -euo pipefail
+        if [ -n "$INPUT_CLAIM" ]; then
+          printf '%s' "$INPUT_CLAIM" > "$RUNNER_TEMP/codex-gate-claim.txt"
+        else
+          printf '%s\n\n%s' "$PR_TITLE" "$PR_BODY" > "$RUNNER_TEMP/codex-gate-claim.txt"
+        fi
+        if [ -n "$BASE_REF" ]; then
+          git fetch --no-tags --depth=1 origin "$BASE_REF" || true
+          git diff "origin/$BASE_REF...HEAD" > "$RUNNER_TEMP/codex-gate.patch"
+        else
+          git diff HEAD~1...HEAD > "$RUNNER_TEMP/codex-gate.patch"
+        fi
+        EXTRA_ARGS=""
+        if [ "$NO_RUN" = "true" ]; then
+          EXTRA_ARGS="--no-run"
+        fi
+        npm run --prefix "$ACTION_PATH" dev -- run \
+          --diff "$RUNNER_TEMP/codex-gate.patch" \
+          --claim "$RUNNER_TEMP/codex-gate-claim.txt" \
+          --repo "$GITHUB_WORKSPACE" $EXTRA_ARGS

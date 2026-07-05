@@ -43,13 +43,15 @@ tool-agnostic (no Codex imports in `src/core`).
 
 ## Next (in priority order)
 
-### 1. Ship it: npm publish + GitHub Action
+### 1. Ship it: npm publish
 - npm publish (`prepublishOnly` already builds; verify `npx codex-gate` works).
-- GitHub Action wrapper positioned as a **required status check for
-  agent-generated PRs** ("AI PRs must pass codex-gate before a human looks").
-  Server-side checks are the one gate an agent cannot bypass locally
-  (documented agent behavior: `--no-verify`, skipping hooks).
+  Blocked on an npm account login; the package name is unclaimed as of
+  2026-07-06.
 - Submit to awesome-codex community lists after publish.
+- [x] GitHub Action: composite `action.yml` at the repo root — usable as
+  `uses: PMWang/codex-gate@main`, positioned as a **required status check for
+  agent-generated PRs**. Server-side checks are the one gate an agent cannot
+  bypass locally (documented agent behavior: `--no-verify`, skipping hooks).
 
 ## Later (deliberately after launch)
 

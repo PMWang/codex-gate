@@ -66,6 +66,27 @@ codex-gate install --codex-hook
 This writes a project-local Codex `Stop` hook to `.codex/hooks.json`; it runs
 `codex-gate run` on each turn and asks Codex to continue when the gate blocks.
 
+## Gate agent PRs in CI
+
+Maintainers can require codex-gate before a human ever reads an AI-generated
+PR. Add a workflow and mark it a required status check:
+
+```yaml
+on: pull_request
+jobs:
+  codex-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: PMWang/codex-gate@main
+```
+
+The action gates the PR's diff against its title and body. Unlike a local
+hook, a required status check is enforced server-side — an agent can't skip
+it with `--no-verify`.
+
 ## Architecture
 
 The checking logic lives in a tool-agnostic **core** (`src/core`) — the checks
