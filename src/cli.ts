@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import { execSync } from "node:child_process";
-import { runGates } from "./core/registry.js";
+import { allGates, runGates } from "./core/registry.js";
 import { GateInput } from "./core/gate.js";
+import {
+  disabledGateNames,
+  enabledGates,
+  loadCodexGateConfig,
+  thresholdContext,
+} from "./core/config.js";
 import { loadCodexContext, toContext } from "./codex/adapter.js";
 import { installCodexHook, runCodexStopHook } from "./codex/hooks.js";
 
@@ -73,6 +79,14 @@ async function main() {
 
   const args = parseArgs(rest);
   const repoRoot = (args.repo as string) || process.cwd();
+  const config = loadCodexGateConfig(repoRoot);
+  for (const warning of config.warnings) {
+    console.warn(`codex-gate: config warning: ${warning}`);
+  }
+  for (const gate of disabledGateNames(allGates, config)) {
+    console.log(`codex-gate: gate ${gate} disabled by .codex-gate.yml`);
+  }
+  const gates = enabledGates(allGates, config);
 
   const diff = readMaybeFile(
     args.diff as string | undefined,
@@ -97,11 +111,12 @@ async function main() {
     repoRoot,
     context: {
       ...toContext(loadCodexContext(repoRoot)),
+      ...thresholdContext(config),
       testRealityNoRun: args["no-run"] === true,
     },
   };
 
-  const results = await runGates(input);
+  const results = await runGates(input, gates);
 
   let blocked = false;
   for (const r of results) {

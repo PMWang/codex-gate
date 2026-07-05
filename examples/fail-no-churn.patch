@@ -1,0 +1,10 @@
+diff --git a/src/parser.ts b/src/parser.ts
+--- a/src/parser.ts
++++ b/src/parser.ts
+@@ -1,5 +1,6 @@
+-if (ready) {
++if(ready){
+   run();
+ }
++
++// TODO: wire the real parser validation

@@ -61,7 +61,11 @@ export const claimVsDiff: Gate = {
 
     // 2. Grand summary on a trivial change.
     const claimWords = claim.split(/\s+/).filter(Boolean).length;
-    if (claimWords >= 40 && totalLines <= 3) {
+    const longDescriptionThreshold =
+      typeof input.context?.claimVsDiffLongDescriptionWords === "number"
+        ? input.context.claimVsDiffLongDescriptionWords
+        : 40;
+    if (claimWords >= longDescriptionThreshold && totalLines <= 3) {
       findings.push({
         severity: "warn",
         message: `Long description (${claimWords} words) for a ${totalLines}-line change. ` +

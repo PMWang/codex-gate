@@ -30,9 +30,9 @@ button — aimed specifically at the output of your own Codex runs.
 | Gate | Catches |
 | --- | --- |
 | **claim-vs-diff** | The description claims things the diff doesn't contain (e.g. "added tests" with no test files touched; a grand summary on a one-line change). |
-| _test-reality_ (planned) | Re-runs the tests instead of trusting "all green". |
-| _no-churn_ (planned) | Pointless refactors, dead code, `TODO` placeholders. |
-| _agents-md_ (planned) | Enforces the rules in this repo's `AGENTS.md`. |
+| **test-reality** | Re-runs the tests instead of trusting "all green". |
+| **no-churn** | Warns on pure formatting hunks and placeholder work. |
+| **agents-md** | Enforces the rules in this repo's `AGENTS.md`. |
 | _asset-gate_ (planned) | OCR / overlap checks on generated images (no baked-in text, no overlapping labels). |
 
 ## Quick start
@@ -45,6 +45,17 @@ npm run dev -- run --diff change.patch --claim message.txt
 
 Exit code is non-zero if any gate **blocks**, so it drops straight into CI or a
 git hook.
+
+## Configuration
+
+Optional `.codex-gate.yml`:
+
+```yaml
+gates: { no-churn: off }
+thresholds: { claim-vs-diff.long-description-words: 40, test-reality.timeout-ms: 120000 }
+```
+
+Only `on`/`off` gate switches and numeric thresholds are supported; invalid config warns and falls back to defaults.
 
 ## Gate every Codex turn
 

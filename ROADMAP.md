@@ -1,7 +1,7 @@
 # codex-gate roadmap
 
-Status: **0.2-dev — three gates live (claim-vs-diff, agents-md, test-reality)
-plus native Codex Stop-hook integration.** This file specs the remaining work
+Status: **0.2-dev — four gates live (claim-vs-diff, agents-md, test-reality,
+no-churn), minimal config, plus native Codex Stop-hook integration.** This file specs the remaining work
 in priority order (re-planned 2026-07-05 around the launch sprint). Each gate implements the `Gate` interface in `src/core/gate.ts`, lives
 in `src/core/gates/`, registers in `src/core/registry.ts`, and ships with a
 passing and a failing example under `examples/`. Keep all gate logic
@@ -33,6 +33,13 @@ tool-agnostic (no Codex imports in `src/core`).
       feeds Codex's last assistant message into `codex-gate run` and returns a
       Stop continuation when gates block. Default behavior runs tests; use
       `--no-run` only for constrained sandboxes.
+- [x] **no-churn (lite)** — warns on pure formatting hunks and added
+      placeholders (`TODO`/`FIXME`, bare Python `pass`, not-implemented throws).
+      This is a lightweight tripwire only; deep churn analysis stays out of
+      scope.
+- [x] **Config file** — optional `.codex-gate.yml` supports gate on/off switches
+      and numeric thresholds for claim-vs-diff long-description words and
+      test-reality timeout.
 
 ## Next (in priority order)
 
@@ -43,17 +50,6 @@ tool-agnostic (no Codex imports in `src/core`).
   Server-side checks are the one gate an agent cannot bypass locally
   (documented agent behavior: `--no-verify`, skipping hooks).
 - Submit to awesome-codex community lists after publish.
-
-### 2. no-churn (lite)
-**Catches:** pointless reformatting / dead code / placeholder work.
-**Logic:** flag hunks that are pure whitespace/reformatting (added line equals a
-removed line ignoring whitespace); flag added `TODO`/`FIXME`/`pass`/`throw new
-Error("not implemented")` with no surrounding logic. `warn` only — adjacent
-tools already cover deep churn analysis; this stays a lightweight tripwire.
-
-### 3. Config file
-`.codex-gate.yml` — enable/disable gates, set thresholds (e.g. churn ratio,
-long-description word count). Minimal: parse, apply, document.
 
 ## Later (deliberately after launch)
 

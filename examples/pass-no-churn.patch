@@ -1,0 +1,8 @@
+diff --git a/src/parser.ts b/src/parser.ts
+--- a/src/parser.ts
++++ b/src/parser.ts
+@@ -1,4 +1,4 @@
+ export function parseLimit(input: string): number {
+-  return Number.parseInt(input, 10);
++  return Math.max(0, Number.parseInt(input, 10));
+ }
