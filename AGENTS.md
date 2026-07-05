@@ -18,6 +18,16 @@ touching the code. codex-gate dogfoods itself: every change should pass
 5. **Every new gate ships with an example** under `examples/` showing a passing
    and a failing case.
 
+## Machine-enforced rules
+
+The `agents-md` gate enforces this block on every gated diff (rule 4 above,
+made checkable — see `src/core/gates/agentsMd.ts` for the directive syntax):
+
+```codex-gate
+# The tool-agnostic core must not import Codex-specific code.
+forbid-import src/core/ codex
+```
+
 ## Layout
 
 - `src/core/` — tool-agnostic gate engine and gates.

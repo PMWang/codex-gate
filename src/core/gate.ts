@@ -71,6 +71,28 @@ export function summarizeDiff(diff: string): DiffSummary {
   return { files: [...files], addedLines, removedLines };
 }
 
+/** Added lines grouped per file, for gates that inspect diff content. */
+export function addedLinesByFile(diff: string): Map<string, string[]> {
+  const map = new Map<string, string[]>();
+  let current: string[] | undefined;
+
+  for (const line of diff.split("\n")) {
+    if (line.startsWith("+++ ")) {
+      const path = line.slice(4).split("\t")[0].trim();
+      if (path.startsWith("b/")) {
+        current = map.get(path.slice(2)) ?? [];
+        map.set(path.slice(2), current);
+      } else {
+        current = undefined; // /dev/null or unprefixed header
+      }
+    } else if (line.startsWith("+") && !line.startsWith("+++") && current) {
+      current.push(line.slice(1));
+    }
+  }
+
+  return map;
+}
+
 export function isTestFile(path: string): boolean {
   return /(^|\/)(tests?|__tests__|spec)\//i.test(path) || /\.(test|spec)\.[a-z]+$/i.test(path);
 }

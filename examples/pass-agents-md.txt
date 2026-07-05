@@ -1,0 +1,1 @@
+Add a path helper to the core engine.
