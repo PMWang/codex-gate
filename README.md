@@ -38,10 +38,11 @@ button — aimed specifically at the output of your own Codex runs.
 ## Quick start
 
 ```bash
-npm install
-npm run dev -- run --staged          # gate your staged changes + last commit msg
-npm run dev -- run --diff change.patch --claim message.txt
+npx codex-gate run --staged          # gate your staged changes + last commit msg
+npx codex-gate run --diff change.patch --claim message.txt
 ```
+
+(Working from a clone? `npm install`, then `npm run dev -- run --staged`.)
 
 Exit code is non-zero if any gate **blocks**, so it drops straight into CI or a
 git hook.

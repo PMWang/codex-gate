@@ -1,8 +1,17 @@
 {
   "name": "codex-gate",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A quality gate that keeps Codex honest — blocks AI-slop changes before they merge.",
-  "keywords": ["codex", "openai", "ai", "agent", "quality-gate", "ci", "ai-slop", "code-review"],
+  "keywords": [
+    "codex",
+    "openai",
+    "ai",
+    "agent",
+    "quality-gate",
+    "ci",
+    "ai-slop",
+    "code-review"
+  ],
   "license": "MIT",
   "author": "PMWang",
   "repository": {
@@ -21,7 +30,7 @@
     "dist"
   ],
   "bin": {
-    "codex-gate": "./dist/cli.js"
+    "codex-gate": "dist/cli.js"
   },
   "scripts": {
     "dev": "tsx src/cli.ts",
