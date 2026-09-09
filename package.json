@@ -1,5 +1,5 @@
 {
-  "name": "codex-gate",
+  "name": "codex-gatekeeper",
   "version": "0.2.0",
   "description": "A quality gate that keeps Codex honest — blocks AI-slop changes before they merge.",
   "keywords": [
