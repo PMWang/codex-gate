@@ -93,6 +93,23 @@ export function addedLinesByFile(diff: string): Map<string, string[]> {
   return map;
 }
 
+/**
+ * Files that configure how tests run, rather than containing tests. A change
+ * to one of these legitimately talks about tests without adding any, so gates
+ * should not read a test mention alongside them as a claim that tests were
+ * written.
+ */
+export function isTestConfigFile(path: string): boolean {
+  const name = path.split("/").pop() ?? path;
+  return (
+    name === "package.json" ||
+    /(^|\/)\.github\/workflows\/[^/]+\.ya?ml$/i.test(path) ||
+    /^(jest|vitest|karma|playwright|cypress|nyc|ava|wdio)\.conf(ig)?\./i.test(name) ||
+    /^\.mocharc\./i.test(name) ||
+    /^(pytest\.ini|tox\.ini|pyproject\.toml|setup\.cfg|noxfile\.py)$/i.test(name)
+  );
+}
+
 export function isTestFile(path: string): boolean {
   return /(^|\/)(tests?|__tests__|spec)\//i.test(path) || /\.(test|spec)\.[a-z]+$/i.test(path);
 }

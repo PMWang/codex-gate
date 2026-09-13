@@ -69,6 +69,28 @@ test("warns when a named source file is not present in the diff", async () => {
   assert.match(result.findings[0]?.message ?? "", /src\/validator\.ts/);
 });
 
+test("warns instead of blocking when the diff changes the test setup", async () => {
+  for (const file of [
+    "package.json",
+    ".github/workflows/ci.yml",
+    "jest.config.js",
+    "pytest.ini",
+  ]) {
+    const result = await run("Fix the test script so tests run on older Node.", diffFor(file));
+
+    assert.equal(result.passed, true, file);
+    assert.equal(result.findings[0]?.severity, "warn", file);
+    assert.match(result.findings[0]?.message ?? "", /test configuration/, file);
+  }
+});
+
+test("still blocks a test claim when only ordinary source files changed", async () => {
+  const result = await run("Add tests for the parser.", diffFor("src/parser.ts"));
+
+  assert.equal(result.passed, false);
+  assert.equal(result.findings[0]?.severity, "block");
+});
+
 test("does not block negated test mentions", async () => {
   for (const claim of [
     "Config-only tweak; no tests needed for this change.",

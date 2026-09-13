@@ -5,6 +5,7 @@ import {
   GateFinding,
   summarizeDiff,
   isTestFile,
+  isTestConfigFile,
   isDocOrCommentOnly,
 } from "../gate.js";
 
@@ -48,15 +49,27 @@ export const claimVsDiff: Gate = {
     const claim = input.claim.toLowerCase();
     const totalLines = summary.addedLines + summary.removedLines;
 
-    // 1. Claims tests were added/updated, but no test file changed.
+    // 1. Claims tests were added/updated, but no test file changed. A change to
+    //    the test setup itself (test script, CI config) is allowed to discuss
+    //    tests without adding any, so that only warns.
     const assertiveClaim = claim.replace(NON_ASSERTIVE_TEST_RE, " ");
     if (TEST_CLAIM_RE.test(assertiveClaim) && !summary.files.some(isTestFile)) {
-      findings.push({
-        severity: "block",
-        message:
-          "Description mentions tests, but no test file is touched in the diff. " +
-          "Add the tests or drop the claim.",
-      });
+      if (summary.files.some(isTestConfigFile)) {
+        findings.push({
+          severity: "warn",
+          message:
+            "Description mentions tests and the diff changes test configuration, " +
+            "but no test file. Fine for a test-setup change — if you meant you " +
+            "added tests, add them.",
+        });
+      } else {
+        findings.push({
+          severity: "block",
+          message:
+            "Description mentions tests, but no test file is touched in the diff. " +
+            "Add the tests or drop the claim.",
+        });
+      }
     }
 
     // 2. Grand summary on a trivial change.
