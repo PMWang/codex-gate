@@ -35,6 +35,33 @@ button — aimed specifically at the output of your own Codex runs.
 | **agents-md** | Enforces the rules in this repo's `AGENTS.md`. |
 | _asset-gate_ (planned) | OCR / overlap checks on generated images (no baked-in text, no overlapping labels). |
 
+## What a block looks like
+
+Real output on [`examples/fail-claims-tests`](examples/): the description promises
+"full unit test coverage", the diff changes one line of `src/parser.ts`.
+
+```text
+$ npx codex-gatekeeper run --diff examples/fail-claims-tests.patch \
+    --claim examples/fail-claims-tests.txt --no-run
+
+[BLOCK] claim-vs-diff
+  ✗ Description mentions tests, but no test file is touched in the diff. Add the tests or drop the claim.
+  ! Long description (40 words) for a 1-line change. Make sure the summary isn't overselling the diff.
+
+[PASS] agents-md
+  ✓ clean
+
+[PASS] test-reality
+  ! test-reality skipped because --no-run was set; no test command was executed.
+
+[PASS] no-churn
+  ✓ clean
+
+codex-gate: BLOCKED
+```
+
+Exit code is 1, so in CI the check fails.
+
 ## Quick start
 
 ```bash
@@ -82,7 +109,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: PMWang/codex-gate@main
+      - uses: PMWang/codex-gate@v0.2.1
 ```
 
 The action gates the PR's diff against its title and body. Unlike a local
